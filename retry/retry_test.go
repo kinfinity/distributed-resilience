@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-
 )
 
 // Mock function to simulate a function with errors
@@ -26,7 +25,7 @@ func TestRetryDo(t *testing.T) {
 	delay := 100 * time.Millisecond
 	watchErrors := []error{errors.New("temporary error"), errors.New("maximum attempts reached")}
 
-	retry := New(maxAttempts, delay, watchErrors, NewBackOff(100*time.Millisecond, true, true))
+	retry := NewWithBackOff(maxAttempts, delay, watchErrors, NewBackOff(100*time.Millisecond, true, true))
 
 	t.Run("Success", func(t *testing.T) {
 		mockFn := new(MockFunction)
@@ -38,16 +37,17 @@ func TestRetryDo(t *testing.T) {
 		mockFn.AssertCalled(t, "Execute")
 	})
 
-	// t.Run("MaxAttemptsReached", func(t *testing.T) {
-	// 	mockFn := new(MockFunction)
-	// 	mockFn.On("Execute").Return(errors.New("temporary error")).Times(int(maxAttempts))
+	t.Run("MaxAttemptsReached", func(t *testing.T) {
+		mockFn := new(MockFunction)
+		mockFn.On("Execute").Return(errors.New("temporary error")).Times(int(maxAttempts))
 
-	// 	err := retry.Do(mockFn.Execute)
+		err := retry.Do(mockFn.Execute)
 
-	// 	assert.Error(t, err)
-	// 	assert.Contains(t, err.Error(), "maximum attempts reached")
-	// 	mockFn.AssertNumberOfCalls(t, "Execute", int(maxAttempts))
-	// })
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "maximum attempts reached")
+		// mockFn.AssertExpectations(t)
+		mockFn.AssertNumberOfCalls(t, "Execute", int(maxAttempts))
+	})
 
 	t.Run("PanicOnError", func(t *testing.T) {
 		mockFn := new(MockFunction)
@@ -61,21 +61,21 @@ func TestRetryDo(t *testing.T) {
 }
 
 // TestisErrorWatchedByRetry tests the isErrorWatchedByRetry function
-func TestisErrorWatchedByRetry(t *testing.T) {
+func TestIsErrorWatchedByRetry(t *testing.T) {
 	maxAttempts := int32(3)
 	delay := 100 * time.Millisecond
 	watchErrors := []error{CustomError{"custom error"}, errors.New("temporary error")}
 
-	retry := New(maxAttempts, delay, watchErrors, NewBackOff(100*time.Millisecond, true, true))
+	retry := NewWithBackOff(maxAttempts, delay, watchErrors, NewBackOff(100*time.Millisecond, true, true))
 
 	t.Run("WatchedError", func(t *testing.T) {
 		customError := CustomError{"custom error"}
-		assert.True(t, isErrorWatchedByRetry(customError, retry))
+		assert.True(t, IsErrorWatchedByRetry(customError, retry))
 	})
 
 	t.Run("UnwatchedError", func(t *testing.T) {
 		err := errors.New("permanent error")
-		assert.False(t, isErrorWatchedByRetry(err, retry))
+		assert.False(t, IsErrorWatchedByRetry(err, retry))
 	})
 }
 

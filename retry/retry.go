@@ -59,7 +59,7 @@ type Retry struct {
 }
 
 // New Retry  instance with given delay, max attempts and a list of errors to watch for to trigger a retry. If no error is matched panic
-func New(maxAttempts int32, delay time.Duration, watchErrors []error, backOff *BackOff) *Retry {
+func NewWithBackOff(maxAttempts int32, delay time.Duration, watchErrors []error, backOff *BackOff) *Retry {
 	return &Retry{
 		attempts:    &atomic.Int32{},
 		maxAttempts: maxAttempts,
@@ -68,7 +68,7 @@ func New(maxAttempts int32, delay time.Duration, watchErrors []error, backOff *B
 	}
 }
 
-func NewWithBackOff(maxAttempts int32, delay time.Duration, watchErrors []error) *Retry {
+func New(maxAttempts int32, delay time.Duration, watchErrors []error) *Retry {
 	return &Retry{
 		attempts:    &atomic.Int32{},
 		maxAttempts: maxAttempts,
@@ -78,15 +78,19 @@ func NewWithBackOff(maxAttempts int32, delay time.Duration, watchErrors []error)
 
 // Retry execution of fn until success, max Attempts or panic
 func (r *Retry) Do(fn func() error) error {
+	//Always start at count 0
+	r.attempts.Store(0)
 	for {
 		// watched errors triggers a new execution iteration
 		err := fn()
+		// increment attempt
+		r.attempts.Add(1)
 		if err == nil {
 			// execution completed successfully
 			return nil
 		}
 
-		if !isErrorWatchedByRetry(err, r) {
+		if !IsErrorWatchedByRetry(err, r) {
 			panic(err)
 		}
 
@@ -94,16 +98,18 @@ func (r *Retry) Do(fn func() error) error {
 			return errors.New("maximum attempts reached")
 		}
 
-		// increment attempt and delay till next iteration
-		r.attempts.Add(1)
-		r.backoff.Delay(r.attempts.Load())
+		//  delay till next iteration
+		if r.backoff != nil {
+			r.backoff.Delay(r.attempts.Load())
+		}
+
 	}
 }
 
 // check if the given error is in the list of watched errors.
 // Used to catch mostly transient errors for retry scenario and
 // returns true when the error matches one of the provided errors by Type and Messages
-func isErrorWatchedByRetry(err error, r *Retry) bool {
+func IsErrorWatchedByRetry(err error, r *Retry) bool {
 	for _, watchedError := range r.onErrors {
 		// match by type and messages
 		if reflect.TypeOf(err) == reflect.TypeOf(watchedError) && err.Error() == watchedError.Error() {
