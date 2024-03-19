@@ -14,7 +14,7 @@ The Circuit Breaker Pattern is designed to enhance the resilience of a system by
 - after recovery duration move back to half closed
 - if it recovers move to closed state
 
-### Components
+## Components
 
 - **Circuit Breaker**: Represents the main circuit breaker object, responsible for managing the state transitions and handling requests based on the current state.
 - **BreakerOptions**: Defines the options for configuring the circuit breaker, such as recovery time and maximum allowed failures.
@@ -22,10 +22,6 @@ The Circuit Breaker Pattern is designed to enhance the resilience of a system by
 - **Retry**: Utilizes the retry package for handling retry logic when transitioning from the half-open state back to the closed state.
 
 ## Usage
-
-### Creating a Circuit Breaker
-
-To create a new circuit breaker, use the `NewCircuitBreaker` function:
 
 ```go
 package main
@@ -64,5 +60,5 @@ func main() {
 
 # **References:**
 
-- **Michael Nygard**  https://pragprog.com/titles/mnee2/release-it-second-edition/ Second Edition - Stability Patterns => Circuit Breaker
+- **Michael Nygard**  https://pragprog.com/titles/mnee2/release-it-second-edition/ Second Edition - Stability Patterns
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker
