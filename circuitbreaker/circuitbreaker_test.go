@@ -2,18 +2,16 @@ package circuitbreaker
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
-
 )
 
 // TestCircuitBreakerDo tests the Do method of CircuitBreaker
 func TestCircuitBreakerDo(t *testing.T) {
 	maxFailures := int32(3)
-	// maxSuccess := int32(3)
+	maxSuccess := int32(1)
 	recoveryTime := 100 * time.Millisecond
 
 	// Mock context with cancelation after a certain duration
@@ -23,6 +21,7 @@ func TestCircuitBreakerDo(t *testing.T) {
 	options := BreakerOptions{
 		RecoveryTime: recoveryTime,
 		MaxFailures:  maxFailures,
+		MaxSuccess:   maxSuccess,
 		ctx:          ctx,
 	}
 
@@ -30,7 +29,6 @@ func TestCircuitBreakerDo(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		err := cb.Do(func() error {
-			fmt.Println("HEREE:")
 			return nil
 		})
 
@@ -52,6 +50,7 @@ func TestCircuitBreakerSwitchState(t *testing.T) {
 	options := BreakerOptions{
 		RecoveryTime: recoveryTime,
 		MaxFailures:  3,
+		MaxSuccess:   1,
 		ctx:          ctx,
 	}
 
@@ -66,7 +65,7 @@ func TestCircuitBreakerSwitchState(t *testing.T) {
 
 	t.Run("SwitchFromHalfOpenToClosed", func(t *testing.T) {
 		cb.currentState = halfOpen
-		cb.successCount.Store(3)
+		cb.successCount.Store(1)
 		cb.recovered = true
 		cb.switchState()
 		assert.Equal(t, closed, cb.currentState)

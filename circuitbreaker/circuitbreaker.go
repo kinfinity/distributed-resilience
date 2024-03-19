@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/kinfinity/distributed-resilience/retry"
+
 )
 
 // Circuit Breaker
@@ -32,6 +33,7 @@ type CircuitBreaker struct {
 type BreakerOptions struct {
 	RecoveryTime time.Duration
 	MaxFailures  int32
+	MaxSuccess   int32
 	ctx          context.Context
 }
 
@@ -49,6 +51,7 @@ func NewCircuitBreaker(bo BreakerOptions) *CircuitBreaker {
 	return &CircuitBreaker{
 		recoveryTime: bo.RecoveryTime,
 		maxFailures:  bo.MaxFailures,
+		maxSuccess:   bo.MaxSuccess,
 		failCount:    &atomic.Int32{},
 		successCount: &atomic.Int32{},
 		currentState: closed,
