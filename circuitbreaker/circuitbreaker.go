@@ -4,7 +4,6 @@ package circuitbreaker
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"sync/atomic"
 	"time"
@@ -82,13 +81,10 @@ func (cb *CircuitBreaker) Do(f func() error) error {
 
 	// completion
 	if cb.currentState == closed && cb.successCount.Load() >= cb.maxSuccess {
-		fmt.Println("CLOSED: " + string(cb.currentState))
 		cb.completion <- true
-		fmt.Println("Stepped over")
 		return nil
 	}
 
-	fmt.Println("EXECUTE:")
 	switch cb.currentState {
 	case closed:
 		err := f()
@@ -147,14 +143,17 @@ func (cb *CircuitBreaker) switchState() {
 		panic("unexpected state")
 	}
 	log.Println("Changing Circuit Breaker state from", cb.currentState)
-	if cb.currentState == open {
+	switch cb.currentState {
+	case open:
 		cb.currentState = halfOpen
-	} else if cb.currentState == halfOpen && cb.recovered {
-		cb.currentState = closed
-	} else if cb.currentState == halfOpen && !cb.recovered {
-		cb.currentState = open
-	} else if cb.currentState < open {
-		cb.currentState += 1
+	case halfOpen:
+		if cb.recovered {
+			cb.currentState = closed
+		} else {
+			cb.currentState = open
+		}
+	default:
+		cb.currentState++
 	}
 	cb.lastChangeTime = time.Now().UnixNano() / int64(time.Millisecond)
 	log.Println("Changing Circuit Breaker state to", cb.currentState)
