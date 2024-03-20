@@ -49,4 +49,4 @@ func main() {
 
 # **References**
 
-- https://learn.microsoft.com/en-us/azure/architecture/patterns/retry
+- [microsoft architecture patterns retry](https://learn.microsoft.com/en-us/azure/architecture/patterns/retry)

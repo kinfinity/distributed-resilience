@@ -19,4 +19,6 @@ This repository covers several patterns implemented in Golang which have been de
 
 # **References**
 
+- [Release It! Second Edition - Stability Patterns by Michael Nygard](https://pragprog.com/titles/mnee2/release-it-second-edition/)
+- [codecentric resilience-design-patterns](https://www.codecentric.de/wissens-hub/blog/resilience-design-patterns-retry-fallback-timeout-circuit-breaker)
 - [The Resilience Patterns your Microservices Teams Should Know by Victor Rentea](https://youtu.be/IR89tmg9v3A?si=w96y4S6AbVt_CviB)

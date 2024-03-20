@@ -60,5 +60,4 @@ func main() {
 
 # **References:**
 
-- **Michael Nygard**  https://pragprog.com/titles/mnee2/release-it-second-edition/ Second Edition - Stability Patterns
-- https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker
+- [microsoft architecture patterns circuit breaker](https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker)

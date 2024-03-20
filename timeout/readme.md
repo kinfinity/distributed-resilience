@@ -34,4 +34,4 @@ func main() {
 
 # **References**
 
-- [codecentric resilience-design-patterns](https://www.codecentric.de/wissens-hub/blog/resilience-design-patterns-retry-fallback-timeout-circuit-breaker)
+- [ All you need to know about timeouts - Zalando ](https://engineering.zalando.com/posts/2023/07/all-you-need-to-know-about-timeouts.html)
