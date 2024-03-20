@@ -1,4 +1,4 @@
-name: BUILD & TESTS
+name: Build & Tests
 on:
   workflow_dispatch:
   pull_request:
